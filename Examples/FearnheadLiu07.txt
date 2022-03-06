@@ -1,0 +1,10 @@
+@article{fearnhead2007line,
+  title={On-line inference for multiple changepoint problems},
+  author={Fearnhead, Paul and Liu, Zhen},
+  journal={Journal of the Royal Statistical Society: Series B (Statistical Methodology)},
+  volume={69},
+  number={4},
+  pages={589--605},
+  year={2007},
+  publisher={Wiley Online Library}
+}
