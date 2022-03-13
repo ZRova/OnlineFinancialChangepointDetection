@@ -1,19 +1,29 @@
 
 
 # #data <- ##SIMULATE NORMAL WITH CHANGE IN MEAN OR ELSE BROWNIAN MOTION WITH SOME SHIFT
-# data <- c(rnorm(100, 0, 1), rnorm(80, 0, 3),rnorm(100, 0, 1), seq(1,4, length.out=120)+rnorm(120, 5, 1), 
-#           rnorm(100, 0, 1), rnorm(50, 8, 1))
-
-DisneyShares <- read.csv("D:/Zorie/Bristol/#Year3/MathsProject/Examples/DisneySharePrice.csv")
-# Disney Share Price - I've put this time series in the files section of the Teams channel as well.
-
-Open_Disney <- DisneyShares$Open # The data records the share price at the opening and the closing of trade,
-# as well as the high and low achieved by the share price each day. We focus on the opening price here.
-# (Perhaps you could investigate whether a similar pattern holds for the closing, high and low prices?)
-# plot(Open_Disney[1:7000], type = "l")
+data <- c(rnorm(100, 0, 1), rnorm(80, 0, 3),rnorm(100, 0, 1), seq(1,4, length.out=120)+rnorm(120, 4, 1),
+          rnorm(100, 0, 1), rnorm(50, 8, 1))
 # 
+# DisneyShares <- read.csv("D:/Zorie/Bristol/#Year3/MathsProject/Examples/DisneySharePrice.csv")
+# # # Disney Share Price - I've put this time series in the files section of the Teams channel as well.
+# # 
+# Open_Disney <- DisneyShares$Open # The data records the share price at the opening and the closing of trade,
+# # as well as the high and low achieved by the share price each day. We focus on the opening price here.
+# # (Perhaps you could investigate whether a similar pattern holds for the closing, high and low prices?)
+# # plot(Open_Disney[1:7000], type = "l")
+# # 
 # data <- Open_Disney[1:7000]
-data <- Open_Disney
+# acf_object <- acf(Open_Disney,lag.max=14000) # This gives the autocorrelation function plot - given that lower lags are not corrected for at when calculating the autocorrelation at higher lags, most lags are seen as significant.
+# 
+# pacf_object <- pacf(Open_Disney) # The partial autocorrelation function is our way around this: you should find that this gives that only the first and second lags are significant
+# 
+# Disney_Today <- Open_Disney[3:length(Open_Disney)] # Disney's share price, not including the first two days.
+# Disney_Yesterday <- Open_Disney[2:(length(Open_Disney)-1)] # Disney's share price, not including the first day, or the last day.
+# Disney_TDBY <- Open_Disney[1:(length(Open_Disney)-2)] # Disney's share price, not including the last two days.
+# 
+# Adjusted_Disney <-Disney_Today - pacf_object$acf[1]*Disney_Yesterday - pacf_object$acf[2]*Disney_TDBY # Adjusting the Disney share price according to values found from the partial autocorrelation function plot.
+# data <- Adjusted_Disney[5000:10000]
+# data <- Open_Disney
 
 plot(data, type="l")
 
@@ -57,31 +67,28 @@ calcP <- function(i){
 
 ###Updating distance between changepoints in beta distribution.
 getBetaG <- function(N, cpinterval) {
-  print("BETA DISTRIBUTION!")
-  cpinterval
   mean <- mean(cpinterval)
   var <- var(cpinterval)
   if (is.na(var)){
-    print("first changepoint")
-    # var = 10 ####ARE MAKING AN ASSUMPTION?
     return(getG(N, 1/mean))
   }
   mininterval <- min(cpinterval) #minchange
   maxinterval <- max(cpinterval) #max(diff between changepoints)
-  bmean <- (mean-mininterval)/(200-mininterval)
-  bvar <- (var^2)/((maxinterval-mininterval)^2)
+  
+  bmean <- (mean-mininterval)/(maxinterval-mininterval)
+  bvar <- (var)/((maxinterval-mininterval)^2)
   if (!(bvar<(bmean*(1-bmean)))){
     return(getG(N, 1/mean))
   }
-  
-  a <- bmean * (((bmean*(1 - bmean))/bvar) - 2)
+  # print("BETA DISTRIBUTION!")
+  a <- bmean * (((bmean*(1 - bmean))/bvar) - 1)
   b <- (1 - bmean)*(((bmean*(1 - bmean))/bvar) - 1)
-  cpinterval
   # Cumilative distribution function
   centre <- qbeta(0.5, a, b)
-  bover <- seq(0, 1, length.out=(mean/centre))
-  G<- pbeta(seq(0, 1, length.out=(mean/centre)), shape1 = a, shape2 = b)
-  # plot(by2)
+  # print(centre)
+  G<- pbeta(seq(0, 1, length.out=(mean/centre)), shape1 = a, shape2 = b) 
+  #length chosen so there is a 50% chance of being above/below the mean
+  plot(G)
   return(G)
 }
 # getBetaG(100, 0.01^2, 0.01)
@@ -96,7 +103,7 @@ isChangepoint <- function(row, varcount){
     #print(row)
     # print(n)
     # print(row[len])
-    if ((row[len])>0.9){
+    if ((row[len])>0.98){
       return(TRUE)
     }
     #return(varCheck(varcount))
@@ -231,7 +238,6 @@ curdev <- 1
 timesincechangepoint <- 1
 no_bins <- 4
 varcount <- rep(0,no_bins)
-# print(varcount)
 obsGap <- 0.01
 cpinterval <- NULL
 rollingmeanline <- rep(0,N)
@@ -278,9 +284,12 @@ plot(data, type="l")
 lines(rollingmeanline, type = "l", col="blue")
 lines((rollingmeanline + deviationline), type="l", col="green")
 lines((rollingmeanline - deviationline), type="l", col="green")
-# plot(data[1:7000], type = "l")
+lines(data, type = "l")
 abline(v=changepoints, col="red")
 print("done")
+# 
+# plot(Open_Disney[5000:10000], type="l")
+# abline(v=changepoints, col="red")
 
 ############
   #AT THE END#
@@ -305,15 +314,12 @@ print("done")
 #consider splitting long times of no changepoints, keep 10 a couple so can detect immediate changepoints
 #pointless efficiency improvement, lookup table for P, Too much space added to be worth it
 
-
-#### Learn the amount of time between changepoints rather than assuming 
-# SAFEBAYES (could be bayesian about it)
-# MCMC?
-# pick a distribution, conjucgate prior of gemoetric, is beta, update each time a changepoint is found, 
-
-
 #done
 #get it to detect the changepoint peak
 #make the matrix a vector
 #MEAN FROM PREV values,
 ##Median absolute deviation for standard deviation
+#### Learn the amount of time between changepoints rather than assuming 
+# SAFEBAYES (could be bayesian about it)
+# MCMC?
+# pick a distribution, conjucgate prior of gemoetric, is beta, update each time a changepoint is found, 

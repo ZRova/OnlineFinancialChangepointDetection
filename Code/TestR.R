@@ -166,7 +166,9 @@ mean <- 100 #seq(mininterval,maxinterval)
 print(mean)
 var <- 30
 
-array <- c(103, 180)
+array <- c(26, 40, 94, 205)
+array <- c(26,  40, 94, 205, 130, 17,70,  63,  24,  45, 333,  62, 203, 186, 431,  18,  58,  46, 174,  26,  14,  62, 311,  28,  14, 183, 106,  35,  24, 219, 108, 289,
+           409, 132, 173,  60, 193, 213,  38)
 mean <- mean(array)
 var <- var(array)
 mininterval <- min(array)
@@ -174,10 +176,15 @@ maxinterval <- max(array)
 
 bmean <- (mean-mininterval)/(maxinterval-mininterval)
 bvar <- (var)/((maxinterval-mininterval)^2)
-a <- bmean * (((bmean*(1 - bmean))/bvar) - 2)
+a <- bmean * (((bmean*(1 - bmean))/bvar) - 1)
 b <- (1 - bmean)*(((bmean*(1 - bmean))/bvar) - 1)
 mean
 var
+mininterval
+maxinterval
+bmean
+bvar
+(bvar<(bmean*(1-bmean)))
 a
 b
 # Cummilative distribution function
