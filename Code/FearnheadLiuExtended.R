@@ -1,18 +1,19 @@
 
 
-#data <- ##SIMULATE NORMAL WITH CHANGE IN MEAN OR ELSE BROWNIAN MOTION WITH SOME SHIFT
-data <- c(rnorm(100, 0, 1), rnorm(80, 0, 3),rnorm(100, 0, 1), seq(1,4, length.out=120)+rnorm(120, 5, 1), 
-          rnorm(100, 0, 1), rnorm(50, 8, 1))
+# #data <- ##SIMULATE NORMAL WITH CHANGE IN MEAN OR ELSE BROWNIAN MOTION WITH SOME SHIFT
+# data <- c(rnorm(100, 0, 1), rnorm(80, 0, 3),rnorm(100, 0, 1), seq(1,4, length.out=120)+rnorm(120, 5, 1), 
+#           rnorm(100, 0, 1), rnorm(50, 8, 1))
 
-# DisneyShares <- read.csv("D:/Zorie/Bristol/#Year3/MathsProject/Examples/DisneySharePrice.csv") 
+DisneyShares <- read.csv("D:/Zorie/Bristol/#Year3/MathsProject/Examples/DisneySharePrice.csv")
 # Disney Share Price - I've put this time series in the files section of the Teams channel as well.
-# 
-# Open_Disney <- DisneyShares$Open # The data records the share price at the opening and the closing of trade, 
-#as well as the high and low achieved by the share price each day. We focus on the opening price here. 
-#(Perhaps you could investigate whether a similar pattern holds for the closing, high and low prices?)
+
+Open_Disney <- DisneyShares$Open # The data records the share price at the opening and the closing of trade,
+# as well as the high and low achieved by the share price each day. We focus on the opening price here.
+# (Perhaps you could investigate whether a similar pattern holds for the closing, high and low prices?)
 # plot(Open_Disney[1:7000], type = "l")
 # 
 # data <- Open_Disney[1:7000]
+data <- Open_Disney
 
 plot(data, type="l")
 
@@ -34,7 +35,8 @@ getG <- function(N, p){
   # lines(pgeom(1:N, p))
   return(G)
 }
-#getG(50, 0.08)
+# max(getG(300, 0.08))
+
 
 ##calculates probability of time between changepoints. 
 calcP <- function(i){
@@ -54,22 +56,36 @@ calcP <- function(i){
 }#need to pass i as i is used in other places. 
 
 ###Updating distance between changepoints in beta distribution.
-getBetaG <- function(N,a,b) {
-  x <- seq(0, 1, length.out = N)
-  # g <- dbeta(x, a, b)
-  # # print(g)
-  # # plot(g, type="l")
-  # 
-  # G <- rep(0,N)
-  # for (i in 1:N){
-  #   G[i] <- sum(g[1:i])
-  # }
-  G <- pbeta(x, a, 1/b)
- # plot(G, type="l")
-  # lines(pbeta(x, a, b))
+getBetaG <- function(N, cpinterval) {
+  print("BETA DISTRIBUTION!")
+  cpinterval
+  mean <- mean(cpinterval)
+  var <- var(cpinterval)
+  if (is.na(var)){
+    print("first changepoint")
+    # var = 10 ####ARE MAKING AN ASSUMPTION?
+    return(getG(N, 1/mean))
+  }
+  mininterval <- min(cpinterval) #minchange
+  maxinterval <- max(cpinterval) #max(diff between changepoints)
+  bmean <- (mean-mininterval)/(200-mininterval)
+  bvar <- (var^2)/((maxinterval-mininterval)^2)
+  if (!(bvar<(bmean*(1-bmean)))){
+    return(getG(N, 1/mean))
+  }
+  
+  a <- bmean * (((bmean*(1 - bmean))/bvar) - 2)
+  b <- (1 - bmean)*(((bmean*(1 - bmean))/bvar) - 1)
+  cpinterval
+  # Cumilative distribution function
+  centre <- qbeta(0.5, a, b)
+  bover <- seq(0, 1, length.out=(mean/centre))
+  G<- pbeta(seq(0, 1, length.out=(mean/centre)), shape1 = a, shape2 = b)
+  # plot(by2)
   return(G)
 }
-#getBetaG(200, 1/5, 5/36)
+# getBetaG(100, 0.01^2, 0.01)
+# getBetaG(200, 100^2, (100-1)/100^2)
 
 ##checks whether there has been a changepoint
 isChangepoint <- function(row, varcount){
@@ -80,10 +96,10 @@ isChangepoint <- function(row, varcount){
     #print(row)
     # print(n)
     # print(row[len])
-    if ((row[len])>0.97){
+    if ((row[len])>0.9){
       return(TRUE)
     }
-    return(varCheck(varcount))
+    #return(varCheck(varcount))
   }
   return(FALSE)
 }
@@ -158,18 +174,18 @@ varCheck <- function(varcount){
     print("variance has increased")
     return(TRUE)
   }
-  if (((varcount[2]+varcount[3])/sum) > (0.8 + (1/timesincechangepoint))) {
+  if (((varcount[2]+varcount[3])/sum) > (0.75 + (1/timesincechangepoint))) {
     print("variance has decreased")
     return(TRUE)
   }
-  if (((varcount[1]+varcount[2])/sum) > (0.6 + (1/timesincechangepoint))) {
-    print("trending down")
-    return(TRUE)
-  }
-  if (((varcount[3]+varcount[4])/sum) > (0.6 + (1/timesincechangepoint))) {
-    print("trending up")
-    return(TRUE)
-  }
+  # if (((varcount[1]+varcount[2])/sum) > (0.6 + (1/timesincechangepoint))) {
+  #   print("trending down")
+  #   return(TRUE)
+  # }
+  # if (((varcount[3]+varcount[4])/sum) > (0.6 + (1/timesincechangepoint))) {
+  #   print("trending up")
+  #   return(TRUE)
+  # }
   return(FALSE)
 }
 
@@ -201,7 +217,7 @@ updateModel <- function(row, mean=data[n], stdv=1){
 # change_estimate <- 100
 # a <- 1/change_estimate^2
 # b <- (change_estimate-1)/change_estimate^2
-# N <- length(data)
+N <- length(data)
 # G <- getBetaG(N, a, b)
 G <- getG(N, 0.01)
 minChange <- 10 #Min length between changepoints
@@ -216,6 +232,10 @@ timesincechangepoint <- 1
 no_bins <- 4
 varcount <- rep(0,no_bins)
 # print(varcount)
+obsGap <- 0.01
+cpinterval <- NULL
+rollingmeanline <- rep(0,N)
+deviationline <- rep(0,N)
 ################################ 
 
 ###MAIN
@@ -224,7 +244,9 @@ for (n in 1:(N-1)){
   i <- length(row)
   #print(i)
   rollingmean <- calcMean(i, rollingmean) #has to be here so variable is updated.
+  rollingmeanline[n] <- rollingmean
   stdv <- stdvMAD(i, rollingmean)
+  deviationline[n] <- stdv
   row <- updateModel(row, rollingmean, stdv)
   varcount <- varChange(rollingmean, stdv)
   #print(varcount)
@@ -233,16 +255,19 @@ for (n in 1:(N-1)){
   if (isChangepoint(row, varcount)){
     print("FOUND CHANGEPOINT!!!!!")
     print(n)
-    print(stdv)
     print(rollingmean)
+    print(stdv)
     changepoints[numberchangepoints] <- n #####NEED TO CHANGE POSITION IN DATA
     numberchangepoints <- numberchangepoints + 1
     recent_changepoint <- n
+    cpinterval <- append(cpinterval, timesincechangepoint) ##inefficient
+    # print(cpinterval)
     timesincechangepoint <- 1
     row <- 1
     rollingmean <- 0
     deviation <- NULL
-    #G <- getBetaG(N, 1/change_estimate, (change_estimate -1)/(change_estimate)^2)
+    obsGap <- numberchangepoints/n
+    G <- getBetaG(N, cpinterval)##
     varcount <- rep(0,no_bins)
   }
 }
@@ -250,12 +275,15 @@ for (n in 1:(N-1)){
 
 print(changepoints)
 plot(data, type="l")
+lines(rollingmeanline, type = "l", col="blue")
+lines((rollingmeanline + deviationline), type="l", col="green")
+lines((rollingmeanline - deviationline), type="l", col="green")
 # plot(data[1:7000], type = "l")
 abline(v=changepoints, col="red")
 print("done")
 
 ############
-#AT THE END#
+  #AT THE END#
 ############
 
 ###### TO DO

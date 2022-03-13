@@ -1,5 +1,5 @@
 #data <- ##SIMULATE NORMAL WITH CHANGE IN MEAN OR ELSE BROWNIAN MOTION WITH SOME SHIFT
-data <- c(rnorm(8, 0, 1), rnorm(12, 8, 1), rnorm(10, 0, 1), rnorm(5, 8, 1))
+data <- c(rnorm(80, 0, 1), rnorm(120, 8, 1), rnorm(100, 0, 1), rnorm(50, 8, 1))
 N <- length(data)
 
 plot(data, type="l")
@@ -8,7 +8,7 @@ plot(data, type="l")
 #CREATE G VECTOR#  
 #################
 
-g <- dgeom(1:N, 0.1)
+g <- dgeom(1:N, 0.01)
 #plot(g, type="l")
 
 G <- rep(0,N)
@@ -108,6 +108,7 @@ for (n in 1:(N-1)){
 }
 
 print(changepoints)
-#plot(row, type = "l")
+plot(data, type = "l")
+abline(v=changepoints, col="red")
 print("done")
 

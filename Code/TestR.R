@@ -30,9 +30,9 @@ returns <- function(x, y){
   return(x+y, x*y)
 }
 
-# a, b <- returns(2,3)
+# a b <- returns(2,3)
 # print(a)
-### no must return list.
+## no must return list.
 
 qnorm(0.2, 0, 1)
 
@@ -116,3 +116,99 @@ blankFunction(TRUE)
 blankFunction(FALSE, FALSE)
 blankFunction(FALSE)
 blankFunction(TRUE, TRUE)
+
+
+##Testing how well global variables work within a function. 
+# 
+# globalFunction <- function(data, var1, var2){
+#   
+# }
+
+
+select <- seq(1:10)
+select
+select <- select[-1]
+select
+
+
+
+# Creating the Sequence
+gfg = seq(0,1, by=0.1)
+
+# Case 3
+plot(gfg, dbeta(gfg, 2,2), xlab = "X",
+     ylab = "Beta Density", type = "l",
+     col = "Red")
+
+
+# The Beta Distribution
+plr.data <- data.frame(
+  player_avg <- c(seq(0, 1, length.out=1000)),
+  stringsAsFactors = FALSE
+)
+
+# Print the data frame.           
+print(plr.data)
+print(plr.data$player_avg)
+by1 <- dbeta(plr.data$player_avg, shape1 = 5, shape2 = 8)
+par(mar = rep(2,4))
+plot(by1)
+
+
+##################
+###THIS IS HOW THE BETA DISTRIBUTION WORKS!!!###
+######
+
+mininterval <- 80 #minchange
+maxinterval <- 150 #max(diff between changepoints)
+
+mean <- 100 #seq(mininterval,maxinterval)
+print(mean)
+var <- 30
+
+array <- c(103, 180)
+mean <- mean(array)
+var <- var(array)
+mininterval <- min(array)
+maxinterval <- max(array)
+
+bmean <- (mean-mininterval)/(maxinterval-mininterval)
+bvar <- (var)/((maxinterval-mininterval)^2)
+a <- bmean * (((bmean*(1 - bmean))/bvar) - 2)
+b <- (1 - bmean)*(((bmean*(1 - bmean))/bvar) - 1)
+mean
+var
+a
+b
+# Cummilative distribution function
+centre <- qbeta(0.5, a, b)
+by2 <- pbeta(seq(0, 1, length.out=(mean/centre)), shape1 = a, shape2 = b)
+# max(by2)
+#par(mar = rep(2,4))
+par(mfrow=c(1,1))
+plot(by2)
+locator()
+
+par(mfrow=c(2,2))
+plot(getG(1000, 0.01), main="First 1000 points of geom(0.01)")
+plot(getG(100, 0.01), main="First 100 points of geom(0.01)")
+plot(pbeta(seq(0, 1, length.out=1000), shape1 = a, shape2 = b), main="1000 points of beta")
+plot(pbeta(seq(0, 1, length.out=100), shape1 = a, shape2 = b), main="1000 points of beta")
+
+# Inverse Cummilative distribution function
+by3 <- qbeta(seq(0, 1, length.out=maxinterval*4), shape1 = a, shape2 = b)
+par(mar = rep(2,4))
+plot(by3)
+
+b4 <- rbeta(plr.data$player_avg, shape1 = a, shape2 = b)
+par(mar = rep(2,4))
+plot(density(b4), main = "Rbeta Plot")
+
+array <- c(103, 180)
+mean(array)
+var(array)
+#var((20))
+
+naCheck <- NA
+is.na(naCheck)
+is.na(array)
