@@ -1,5 +1,14 @@
 #data <- ##SIMULATE NORMAL WITH CHANGE IN MEAN OR ELSE BROWNIAN MOTION WITH SOME SHIFT
-data <- c(rnorm(80, 0, 1), rnorm(120, 8, 1), rnorm(100, 0, 1), rnorm(50, 8, 1))
+# data <- c(rnorm(80, 0, 1), rnorm(120, 8, 1), rnorm(100, 0, 1), rnorm(50, 8, 1))
+# data <- c(rnorm(100, 0, 1), rnorm(80, 0, 3),rnorm(100, 0, 1), seq(1,4, length.out=120)+rnorm(120, 4, 1),
+#           rnorm(100, 0, 1), rnorm(50, 8, 1))
+
+# DisneyShares <- read.csv("D:/Zorie/Bristol/#Year3/MathsProject/Examples/DisneySharePrice.csv")
+# Open_Disney <- DisneyShares$Open # The data records the share price at the opening and the closing of trade,
+data <- Open_Disney[1:1000]
+
+# data <- log(Open_Tesla)
+
 N <- length(data)
 
 plot(data, type="l")
@@ -21,7 +30,7 @@ for (i in 1:N){
 isChangepoint <- function(row){
   len <- length(row)
   if (len >= 3){ ##no changepoints before this
-    if ((row[len])>0.9){
+    if ((row[len])>0.97){
       return(TRUE)
     }
   }
@@ -45,7 +54,7 @@ updateModel <- function(row){
   i <- length(row)
   newrow <- rep(0, i+1)
   for (j in 1:i){
-    w <- findw(data[n+1], data[n], sd=1)
+    w <- findw(data[n+1], data[n], sd=0.0011)
     if (i == j){ ## as G(O) Not defined in R, = 0
       #output_matrix[i+1, j] <- w * (1- G[i-(j-1)])*output_matrix[i,j]  #################HEREEEEEE
       newrow[j] <- w * (1- G[i-(j-1)])*row[j]
@@ -91,7 +100,7 @@ print(row)
 for (n in 1:(N-1)){
   ##START
   row <- updateModel(row)
-  print(row)
+  # print(row)
   if (isChangepoint(row)){
     print("FOUND CHANGEPOINT!!!!!")
     print(n)
@@ -107,8 +116,17 @@ for (n in 1:(N-1)){
   }
 }
 
-print(changepoints)
-plot(data, type = "l")
-abline(v=changepoints, col="red")
-print("done")
+# print(changepoints)
+# plot(data, type = "l")
+# abline(v=changepoints, col="red")
+# print("done")
 
+# plot(data,xaxt="n", main="Tesla",xlab="Time",ylab="Share Price",type="l") 
+# labDates <- c("2012","2014","2016","2018","2020","2022")
+# axis(side=1,at=c(384,886,1390,1893,2396,2901),labels=labDates)
+# abline(v=changepoints, col="red")
+
+plot(data,xaxt="n",main="Disney",xlab="Time",ylab="Share Price",type="l")
+labDates <- c("1963","1964","1965","1966")
+axis(side=1,at=c(254,505,758,1010),labels=labDates)
+abline(v=changepoints, col="red")

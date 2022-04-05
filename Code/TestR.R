@@ -166,10 +166,12 @@ mean <- 100 #seq(mininterval,maxinterval)
 print(mean)
 var <- 30
 
-array <- c(26, 40, 94, 205)
+# array <- c(26, 40, 94, 205)
 array <- c(26,  40, 94, 205, 130, 17,70,  63,  24,  45, 333,  62, 203, 186, 431,  18,  58,  46, 174,  26,  14,  62, 311,  28,  14, 183, 106,  35,  24, 219, 108, 289,
            409, 132, 173,  60, 193, 213,  38)
+# array <- c(10,  15,  28,  15, 108,  10,  10,  32,  10)
 mean <- mean(array)
+median <- median(array)
 var <- var(array)
 mininterval <- min(array)
 maxinterval <- max(array)
@@ -178,23 +180,26 @@ bmean <- (mean-mininterval)/(maxinterval-mininterval)
 bvar <- (var)/((maxinterval-mininterval)^2)
 a <- bmean * (((bmean*(1 - bmean))/bvar) - 1)
 b <- (1 - bmean)*(((bmean*(1 - bmean))/bvar) - 1)
-mean
-var
-mininterval
-maxinterval
-bmean
-bvar
-(bvar<(bmean*(1-bmean)))
-a
-b
 # Cummilative distribution function
 centre <- qbeta(0.5, a, b)
-by2 <- pbeta(seq(0, 1, length.out=(mean/centre)), shape1 = a, shape2 = b)
-# max(by2)
-#par(mar = rep(2,4))
+centre
+mean
+maxlen = 600
+mean/centre
+upto <= 1
+if (mean/centre > maxlen){
+  upto <- pnorm((mean/centre)/maxlen, a, b)
+}
+outlen <- mean/centre
+# if outlen > N 
+pbeta(0.1, a, b)
+qbeta(0.5, a, b)
+upto
+by2 <- pbeta(seq(0, upto, length.out=N), shape1 = a, shape2 = b)
 par(mfrow=c(1,1))
+max(by2)
 plot(by2)
-locator()
+# locator()
 
 par(mfrow=c(2,2))
 plot(getG(1000, 0.01), main="First 1000 points of geom(0.01)")
@@ -219,3 +224,92 @@ var(array)
 naCheck <- NA
 is.na(naCheck)
 is.na(array)
+!TRUE
+
+
+###WHAT HAPPENS FOR VALUES OUTSIDE ARRAY
+outside <- 1:50
+outside
+outside[25]
+outside[60]
+
+TRUE != FALSE
+
+G <- pbeta(seq(0, 0.9, length.out = 100), shape1 = 3, shape2 = 2)
+plot(G)
+# locator()
+
+pbeta(0.8, 2,2)
+qbeta(0.8, 2,2)
+
+
+# array <- c(26,  40, 94, 205, 130, 17,70,  63,  24,  45, 333,  62, 203, 186, 431,  18,  58,  46, 174,  26,  14,  62, 311,  28,  14, 183, 106,  35,  24, 219, 108, 289,
+#            409, 132, 173,  60, 193, 213,  38)
+# array <- c(218, 825,  20,  49, 200, 800, 50, 1500)
+array <- c(105, 189, 110, 101,  51, 501,  22,  25, 156)
+# array <- c(53,   32,   91,   48, 1301,  454, 20, 21)
+mean <- mean(array)
+median <- median(array)
+var <- var(array)
+mininterval <- min(array)
+maxinterval <- max(array)
+
+bmean <- (mean-mininterval)/(maxinterval-mininterval)
+bvar <- (var)/((maxinterval-mininterval)^2)
+a <- bmean * (((bmean*(1 - bmean))/bvar) - 1)
+b <- (1 - bmean)*(((bmean*(1 - bmean))/bvar) - 1)
+# Cummilative distribution function
+centre <- qbeta(0.5, a, b)
+# centre
+deslen = 6000 # N
+scaledlen = (mean)/centre
+# scaledlen
+# mean
+# var
+upto <- 1
+outlen <- scaledlen
+if (scaledlen > deslen){
+  upto <- pbeta(deslen/scaledlen, a, b)
+  outlen <- deslen
+}
+by2 <- pbeta(seq(0, upto, length.out=outlen), shape1 = a, shape2 = b)
+if (outlen < deslen){
+  by2 <- append(by2, rep(max(by2), (deslen-outlen)))
+}
+par(mfrow=c(1,1))
+mean
+scaledlen
+qbeta(0.5, a, b)*scaledlen
+# print(by2[mean])
+# max(by2)
+plot(by2)
+# locator()
+
+array <- 1:12
+library(TTR)
+array
+rollno <- 2
+rollup <- 2*rollno
+EMA(array, rollno)
+EMA(array, rollno)[rollno]
+plot(array)
+lines(EMA(array, rollno))
+
+array[rollno:(2*rollno)]
+array[3:6]
+
+# mintimesincecp <- 10
+# movingaverage <- function(curave, x, movavelen, timesincecp){
+#   if moveavelen < mintimesincecp{
+#     curave <- (curave*(timesincecp-1) + x)/timesincecp
+#   }
+#   else
+#     cura
+# }
+
+
+####DEMO PLOTS
+
+plot(pbeta(seq(0,1, length.out = 100), shape1 = a, shape2 = b))
+
+
